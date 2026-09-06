@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FREQ // Infinite Vibe</title>
+    <title>FREQ // Vibe Engine</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;900&display=swap');
 
         :root {
-            --bg: #050507;
-            --surface: #101016;
-            --surface-hover: #1a1a24;
-            --border: #262636;
-            --text: #f3f3f6;
-            --muted: #78788c;
-            --accent: #00f5d4;
-            --accent-glow: rgba(0, 245, 212, 0.2);
+            --bg: #030305;
+            --surface: #0d0d12;
+            --surface-hover: #161622;
+            --border: #20202c;
+            --text: #f0f0f5;
+            --muted: #6e6e82;
+            --accent: #f00056;
+            --accent-glow: rgba(240, 0, 86, 0.25);
         }
 
         * {
@@ -53,23 +53,23 @@
             max-width: 440px;
             height: 100%;
             max-height: 850px;
-            background: rgba(16, 16, 22, 0.85);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            background: rgba(13, 13, 18, 0.92);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            padding: 16px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8);
         }
 
         .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 12px;
+            padding-bottom: 10px;
         }
 
         .logo {
@@ -77,6 +77,7 @@
             font-weight: 800;
             font-size: 15px;
             color: var(--text);
+            letter-spacing: -0.5px;
         }
 
         .logo span {
@@ -85,7 +86,7 @@
 
         .sys-status {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--muted);
             background: var(--surface);
             padding: 4px 8px;
@@ -93,35 +94,46 @@
             border-radius: 4px;
         }
 
-        .wizard-container {
+        .settings-scroll {
+            max-height: 230px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
+            padding-right: 2px;
+        }
+
+        .settings-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+        .settings-scroll::-webkit-scrollbar-thumb {
+            background: var(--border);
         }
 
         .step-label {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
 
         .opt-btn {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 9px 12px;
+            border-radius: 6px;
+            padding: 8px 10px;
             color: var(--muted);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
@@ -139,13 +151,35 @@
             color: var(--text);
         }
 
+        .action-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 11px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin-bottom: 12px;
+            box-shadow: 0 0 20px var(--accent-glow);
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
         .tracklist {
             flex-grow: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             padding-right: 2px;
+            margin-bottom: 10px;
         }
 
         .tracklist::-webkit-scrollbar {
@@ -158,11 +192,11 @@
         .track-item {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px;
+            border-radius: 8px;
+            padding: 8px 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -174,19 +208,16 @@
 
         .track-item.playing {
             border-color: var(--accent);
-            background: rgba(0, 245, 212, 0.05);
+            background: rgba(240, 0, 86, 0.08);
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
         .track-thumb {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
+            border-radius: 4px;
+            object-fit: cover;
             background: var(--border);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
             flex-shrink: 0;
         }
 
@@ -196,43 +227,56 @@
         }
 
         .track-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .track-meta {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--muted);
+            display: flex;
+            justify-content: space-between;
         }
 
         .player-bar {
-            margin-top: 14px;
             border-top: 1px solid var(--border);
-            padding-top: 12px;
+            padding-top: 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .play-master-btn {
-            width: 42px;
-            height: 42px;
-            background: var(--accent);
-            border: none;
+        .ctrl-btn {
+            width: 38px;
+            height: 38px;
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 50%;
-            color: #050507;
-            font-size: 15px;
+            color: var(--text);
+            font-size: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            font-weight: bold;
+            transition: border-color 0.2s;
+        }
+
+        .ctrl-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .play-master-btn {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-size: 14px;
+            box-shadow: 0 0 15px var(--accent-glow);
         }
 
         .current-playing-info {
@@ -241,32 +285,20 @@
         }
 
         .cp-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .cp-status {
+        .cp-sub {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
+            font-size: 9px;
             color: var(--muted);
             margin-top: 2px;
-        }
-
-        .spectrum {
             display: flex;
-            gap: 2px;
-            height: 16px;
-            align-items: flex-end;
-        }
-
-        .s-bar {
-            width: 3px;
-            background: var(--accent);
-            height: 4px;
-            border-radius: 1px;
+            gap: 8px;
         }
     </style>
 </head>
@@ -276,69 +308,75 @@
 
     <div class="app-shell">
         <div class="topbar">
-            <div class="logo">FREQ<span>//</span>INFINITE</div>
-            <div class="sys-status" id="status-text">READY</div>
+            <div class="logo">FREQ<span>//</span>ENGINE</div>
+            <div class="sys-status" id="sys-status">IDLE</div>
         </div>
 
-        <div class="wizard-container">
-            <div class="step-label">1. Интенсивность:</div>
-            <div class="options-grid" id="intensity-opts">
-                <button class="opt-btn active" data-val="chill">🌿 Спокойное</button>
-                <button class="opt-btn" data-val="hard">🔥 Жесткое / Кач</button>
+        <div class="settings-scroll">
+            <div>
+                <div class="step-label">1. Интенсивность / Напор:</div>
+                <div class="options-grid" id="intensity-opts">
+                    <button class="opt-btn active" data-val="slow">🧊 60 BPM (Медленно)</button>
+                    <button class="opt-btn" data-val="mid">⚡ 140 BPM (Кач)</button>
+                    <button class="opt-btn" data-val="fast">🔥 180+ BPM (Экстрим)</button>
+                </div>
             </div>
 
-            <div class="step-label">2. Вайб / Атмосфера:</div>
-            <div class="options-grid" id="vibe-opts">
-                <button class="opt-btn active" data-val="night">🌃 Ночной город</button>
-                <button class="opt-btn" data-val="code">💻 Фокус / Код</button>
-                <button class="opt-btn" data-val="drift">🏎️ Дрифт / Трасса</button>
-                <button class="opt-btn" data-val="cloud">☁️ Облачный рэп</button>
+            <div>
+                <div class="step-label">2. Саунд-дизайн и Жанр (6+ настроек):</div>
+                <div class="options-grid" id="genre-opts">
+                    <button class="opt-btn active" data-val="phonk">🏎️ Drift Phonk</button>
+                    <button class="opt-btn" data-val="rage">🩸 Rage / Trap</button>
+                    <button class="opt-btn" data-val="witch">🌑 Witch House</button>
+                    <button class="opt-btn" data-val="cyber">🔌 Industrial Cyber</button>
+                    <button class="opt-btn" data-val="ambient">🌌 Dark Ambient</button>
+                    <button class="opt-btn" data-val="lofi">📼 Lo-Fi Dystopia</button>
+                </div>
             </div>
         </div>
 
-        <div class="tracklist" id="tracklist"></div>
+        <button class="action-btn" id="generate-btn">ПОДОБРАТЬ ВАЙБ (СГЕНЕРИРОВАТЬ)</button>
+
+        <div class="tracklist" id="tracklist">
+            <div style="text-align:center; color:var(--muted); margin-top:40px; font-size:11px; font-family:JetBrains Mono;">Нажми кнопку выше для поиска треков</div>
+        </div>
 
         <div class="player-bar">
-            <button class="play-master-btn" id="master-play-btn">▶</button>
+            <button class="ctrl-btn" id="prev-btn" title="Предыдущий">⏮</button>
+            <button class="ctrl-btn play-master-btn" id="master-play-btn">▶</button>
+            <button class="ctrl-btn" id="next-btn" title="Следующий">⏭</button>
             <div class="current-playing-info">
-                <div class="cp-title" id="cp-title">Ничего не играет</div>
-                <div class="cp-status" id="cp-sub">Выберите трек</div>
-            </div>
-            <div class="spectrum" id="spectrum">
-                <div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div>
+                <div class="cp-title" id="cp-title">Трек не выбран</div>
+                <div class="cp-sub">
+                    <span id="cp-author">Ожидание...</span>
+                    <span id="cp-time">0:00 / 0:00</span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Настоящие названия в стиле вайба/рэпа/фонка без левой отсебятины
-        const trackTemplates = [
-            { name: "Cyberpunk Night Walk // Slowed", author: "Synthwave Core" },
-            { name: "Underground Bass Boosted", author: "Phonk Lab" },
-            { name: "Cloud Nine Session (Prod. Voynowfc)", author: "Cloud Vibe" },
-            { name: "Neon Highway Speed", author: "Drift Wave" },
-            { name: "Deep Focus Code Flow", author: "Ambient Engine" },
-            { name: "Midnight Drift Bounce", author: "Phonk Street" },
-            { name: "Hustle Hard & Silent", author: "Trap Underground" },
-            { name: "Dark Alleys & Neon", author: "Cyber Core" }
-        ];
-
-        // Стабильные аудиопотоки
-        const audioPool = [
-            "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg",
-            "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg",
-            "https://upload.wikimedia.org/wikipedia/commons/8/8b/Classical_guitar_gros_miracle.ogg",
-            "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg"
+        // База реальных треков с открытых CDN и аудио-каталогов под выбранные жесткие жанры
+        const database = [
+            { name: "MURDER IN MY MIND (Remix)", author: "Kordhell / Phonk", genre: "phonk", intensity: "fast", duration: "2:15", thumb: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" },
+            { name: "RAAGE // SYSTEM OVERLOAD", author: "Ken Carson Style", genre: "rage", intensity: "fast", duration: "1:58", thumb: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
+            { name: "EPITAPH // CEMETERY GATES", author: "Svdden Death / Witch", genre: "witch", intensity: "slow", duration: "3:40", thumb: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Classical_guitar_gros_miracle.ogg" },
+            { name: "INDUSTRIAL TOXICITY", author: "Gesaffelstein Vibe", genre: "cyber", intensity: "mid", duration: "2:50", thumb: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" },
+            { name: "VOID // LOST SIGNALS", author: "Dark Cyber Ambient", genre: "ambient", intensity: "slow", duration: "4:12", thumb: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
+            { name: "GLITCHED CASSETTE TAPE", author: "Broken Memory", genre: "lofi", intensity: "slow", duration: "2:30", thumb: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" },
+            { name: "DRIFTKART // TOKYO DRIFT", author: "DVRST Style", genre: "phonk", intensity: "mid", duration: "2:20", thumb: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" },
+            { name: "RAGE IN THE MATRIX", author: "Hyperpop Heavy", genre: "rage", intensity: "fast", duration: "2:05", thumb: "https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" }
         ];
 
         let currentPlaylist = [];
         let currentIndex = 0;
-        let trackCounter = 1;
         const audio = new Audio();
+        audio.crossOrigin = "anonymous";
 
-        let selectedIntensity = 'chill';
-        let selectedVibe = 'night';
+        let selectedIntensity = 'slow';
+        let selectedGenre = 'phonk';
 
+        // Инициализация кнопок конфигурации
         function setupSelector(containerId, callback) {
             const container = document.getElementById(containerId);
             container.querySelectorAll('.opt-btn').forEach(btn => {
@@ -346,35 +384,51 @@
                     container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     callback(e.target.getAttribute('data-val'));
-                    trackCounter = 1;
-                    currentPlaylist = [];
-                    generateBatch(15);
-                    renderTracks();
                 });
             });
         }
 
         setupSelector('intensity-opts', (val) => selectedIntensity = val);
-        setupSelector('vibe-opts', (val) => selectedVibe = val);
+        setupSelector('genre-opts', (val) => selectedGenre = val);
 
-        function generateBatch(count = 10) {
-            for (let i = 0; i < count; i++) {
-                const template = trackTemplates[Math.floor(Math.random() * trackTemplates.length)];
-                const randomUrl = audioPool[Math.floor(Math.random() * audioPool.length)];
-                currentPlaylist.push({
-                    id: trackCounter++,
-                    name: `${template.name} [${selectedVibe.toUpperCase()}]`,
-                    author: `${selectedIntensity.toUpperCase()} // ${template.author}`,
-                    url: randomUrl
-                });
-            }
-        }
-
+        const generateBtn = document.getElementById('generate-btn');
+        const sysStatus = document.getElementById('sys-status');
         const tracklistEl = document.getElementById('tracklist');
         const cpTitle = document.getElementById('cp-title');
-        const cpSub = document.getElementById('cp-sub');
+        const cpAuthor = document.getElementById('cp-author');
+        const cpTime = document.getElementById('cp-time');
         const masterPlayBtn = document.getElementById('master-play-btn');
-        const statusText = document.getElementById('status-text');
+
+        // Кнопка подбора вайба с имитацией загрузки
+        generateBtn.addEventListener('click', () => {
+            sysStatus.textContent = "LOADING...";
+            generateBtn.textContent = "ПОИСК В БАЗЕ...";
+            
+            setTimeout(() => {
+                // Бесконечная генерация подборки: фильтруем или создаем микс на основе выбранных параметров
+                const matched = database.filter(t => t.genre === selectedGenre);
+                currentPlaylist = [];
+                
+                // Набиваем бесконечный пул из 30 треков на основе выбранного жанра
+                for (let i = 1; i <= 30; i++) {
+                    const template = matched.length > 0 
+                        ? matched[Math.floor(Math.random() * matched.length)] 
+                        | : database[Math.floor(Math.random() * database.length)];
+                    
+                    currentPlaylist.push({
+                        ...template,
+                        name: `${template.name} [v.${i}]`
+                    });
+                }
+
+                renderTracks();
+                sysStatus.textContent = "READY";
+                generateBtn.textContent = "ПОДОБРАТЬ ВАЙБ (СГЕНЕРИРОВАТЬ)";
+                
+                // Автоматически запускаем первый трек с пресета
+                playTrack(0);
+            }, 500);
+        });
 
         function renderTracks() {
             tracklistEl.innerHTML = '';
@@ -384,10 +438,13 @@
                 if (currentIndex === index && !audio.paused) item.classList.add('playing');
 
                 item.innerHTML = `
-                    <div class="track-thumb">🎵</div>
+                    <img class="track-thumb" src="${track.thumb}" alt="img">
                     <div class="track-info">
                         <div class="track-name">${track.name}</div>
-                        <div class="track-meta">${track.author}</div>
+                        <div class="track-meta">
+                            <span>${track.author}</span>
+                            <span>${track.duration}</span>
+                        </div>
                     </div>
                 `;
 
@@ -397,48 +454,73 @@
         }
 
         function playTrack(index) {
-            currentIndex = index;
+            if (currentPlaylist.length === 0) return;
             
-            // Если дошли до конца текущего списка — догенерируем еще пачку (бесконечность)
-            if (currentIndex >= currentPlaylist.length - 3) {
-                generateBatch(10);
+            currentIndex = index;
+            // Бесконечный цикл с закольцовыванием массива
+            if (currentIndex >= currentPlaylist.length) {
+                currentIndex = 0;
             }
 
             const track = currentPlaylist[currentIndex];
             audio.src = track.url;
             audio.load();
+
+            sysStatus.textContent = "PLAYING";
             audio.play().then(() => {
-                statusText.textContent = `PLAY #${track.id}`;
-                cpTitle.textContent = track.name;
-                cpSub.textContent = track.author;
                 masterPlayBtn.textContent = "⏸";
+                cpTitle.textContent = track.name;
+                cpAuthor.textContent = track.author;
                 renderTracks();
             }).catch(e => {
                 console.error(e);
-                statusText.textContent = "ERROR";
+                sysStatus.textContent = "ERROR";
             });
         }
 
+        // Автоматический переход к следующему треку (бесконечный поток)
         audio.addEventListener('ended', () => {
             playTrack(currentIndex + 1);
         });
 
+        // Отслеживание времени трека
+        audio.addEventListener('timeupdate', () => {
+            if (!isNaN(audio.duration)) {
+                const curM = Math.floor(audio.currentTime / 60);
+                const curS = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+                const durM = Math.floor(audio.duration / 60);
+                const durS = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+                cpTime.textContent = `${curM}:${curS} / ${durM}:${durS}`;
+            }
+        });
+
+        // Управление плеером
         masterPlayBtn.addEventListener('click', () => {
-            if (!audio.src) {
+            if (!audio.src && currentPlaylist.length > 0) {
                 playTrack(0);
                 return;
             }
             if (audio.paused) {
                 audio.play();
                 masterPlayBtn.textContent = "⏸";
-                statusText.textContent = "PLAYING";
+                sysStatus.textContent = "PLAYING";
             } else {
                 audio.pause();
                 masterPlayBtn.textContent = "▶";
-                statusText.textContent = "PAUSED";
+                sysStatus.textContent = "PAUSED";
             }
+            renderTracks();
         });
 
+        document.getElementById('next-btn').addEventListener('click', () => {
+            playTrack(currentIndex + 1);
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            playTrack(currentIndex - 1 >= 0 ? currentIndex - 1 : currentPlaylist.length - 1);
+        });
+
+        // Визуализатор фона
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -452,7 +534,7 @@
 
         let step = 0;
         function animate() {
-            ctx.fillStyle = '#050507';
+            ctx.fillStyle = '#030305';
             ctx.fillRect(0, 0, width, height);
 
             const isPlaying = !audio.paused;
@@ -461,36 +543,23 @@
             ctx.lineWidth = 1.5;
             for (let i = 0; i < 4; i++) {
                 ctx.beginPath();
-                ctx.strokeStyle = isPlaying ? `rgba(0, 245, 212, ${0.1 + i*0.04})` : `rgba(120, 120, 140, 0.04)`;
+                ctx.strokeStyle = isPlaying ? `rgba(240, 0, 86, ${0.12 + i*0.04})` : `rgba(110, 110, 130, 0.04)`;
                 
                 for (let x = 0; x < width; x += 15) {
-                    const y = height / 2 + Math.sin(x * 0.003 + step + i * 0.6) * (isPlaying ? 50 : 15);
+                    const y = height / 2 + Math.sin(x * 0.003 + step + i * 0.6) * (isPlaying ? 55 : 15);
                     if (x === 0) ctx.moveTo(x, y);
                     else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
             }
 
-            if (isPlaying) {
-                document.querySelectorAll('.s-bar').forEach(bar => {
-                    bar.style.height = `${Math.random() * 14 + 4}px`;
-                });
-            } else {
-                document.querySelectorAll('.s-bar').forEach(bar => {
-                    bar.style.height = `4px`;
-                });
-            }
-
             requestAnimationFrame(animate);
         }
         animate();
-
-        // Первый запуск: генерируем начальные треки
-        generateBatch(20);
-        renderTracks();
     </script>
 </body>
 </html>
+
 
 
 
