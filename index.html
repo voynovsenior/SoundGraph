@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FREQ // Vibe Engine</title>
+    <title>FREQ // Engine</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;900&display=swap');
 
         :root {
-            --bg: #030305;
-            --surface: #0d0d12;
-            --surface-hover: #161622;
-            --border: #20202c;
-            --text: #f0f0f5;
-            --muted: #6e6e82;
-            --accent: #f00056;
-            --accent-glow: rgba(240, 0, 86, 0.25);
+            --bg: #050507;
+            --surface: #101016;
+            --surface-hover: #1c1c28;
+            --border: #2a2a3d;
+            --text: #f3f3f6;
+            --muted: #808099;
+            --accent: #ff0055;
+            --accent-glow: rgba(255, 0, 85, 0.3);
         }
 
         * {
@@ -48,19 +48,17 @@
 
         .app-shell {
             position: relative;
-            z-index: 1;
+            z-index: 10;
             width: 100%;
             max-width: 440px;
             height: 100%;
             max-height: 850px;
-            background: rgba(13, 13, 18, 0.92);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
+            background: #0c0c10;
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 16px;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
 
         .topbar {
@@ -77,7 +75,6 @@
             font-weight: 800;
             font-size: 15px;
             color: var(--text);
-            letter-spacing: -0.5px;
         }
 
         .logo span {
@@ -95,20 +92,13 @@
         }
 
         .settings-scroll {
-            max-height: 230px;
+            max-height: 220px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-bottom: 12px;
             padding-right: 2px;
-        }
-
-        .settings-scroll::-webkit-scrollbar {
-            width: 3px;
-        }
-        .settings-scroll::-webkit-scrollbar-thumb {
-            background: var(--border);
         }
 
         .step-label {
@@ -130,19 +120,18 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 8px 10px;
+            padding: 10px 12px;
             color: var(--muted);
             font-family: 'JetBrains Mono', monospace;
             font-size: 10px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
             text-align: left;
+            transition: 0.1s;
         }
 
-        .opt-btn:hover {
-            border-color: var(--text);
-            color: var(--text);
+        .opt-btn:active {
+            transform: scale(0.97);
         }
 
         .opt-btn.active {
@@ -156,16 +145,14 @@
             color: #fff;
             border: none;
             border-radius: 8px;
-            padding: 12px;
+            padding: 14px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 800;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
-            transition: transform 0.1s;
             margin-bottom: 12px;
             box-shadow: 0 0 20px var(--accent-glow);
             text-align: center;
-            letter-spacing: 0.5px;
         }
 
         .action-btn:active {
@@ -178,15 +165,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding-right: 2px;
             margin-bottom: 10px;
-        }
-
-        .tracklist::-webkit-scrollbar {
-            width: 3px;
-        }
-        .tracklist::-webkit-scrollbar-thumb {
-            background: var(--border);
         }
 
         .track-item {
@@ -198,23 +177,20 @@
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .track-item:hover {
-            background: var(--surface-hover);
-            border-color: var(--muted);
+        .track-item:active {
+            transform: scale(0.98);
         }
 
         .track-item.playing {
             border-color: var(--accent);
-            background: rgba(240, 0, 86, 0.08);
-            box-shadow: 0 0 15px var(--accent-glow);
+            background: rgba(255, 0, 85, 0.1);
         }
 
         .track-thumb {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 4px;
             object-fit: cover;
             background: var(--border);
@@ -252,31 +228,29 @@
         }
 
         .ctrl-btn {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 50%;
             color: var(--text);
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: border-color 0.2s;
         }
 
-        .ctrl-btn:hover {
-            border-color: var(--accent);
+        .ctrl-btn:active {
+            transform: scale(0.95);
         }
 
         .play-master-btn {
             background: var(--accent);
             border-color: var(--accent);
             color: #fff;
-            font-size: 14px;
-            box-shadow: 0 0 15px var(--accent-glow);
+            font-size: 15px;
         }
 
         .current-playing-info {
@@ -316,35 +290,35 @@
             <div>
                 <div class="step-label">1. Интенсивность / Напор:</div>
                 <div class="options-grid" id="intensity-opts">
-                    <button class="opt-btn active" data-val="slow">🧊 60 BPM (Медленно)</button>
-                    <button class="opt-btn" data-val="mid">⚡ 140 BPM (Кач)</button>
-                    <button class="opt-btn" data-val="fast">🔥 180+ BPM (Экстрим)</button>
+                    <button class="opt-btn active" data-val="slow">🧊 Медленно</button>
+                    <button class="opt-btn" data-val="mid">⚡ Кач</button>
+                    <button class="opt-btn" data-val="fast">🔥 Экстрим</button>
                 </div>
             </div>
 
             <div>
-                <div class="step-label">2. Саунд-дизайн и Жанр (6+ настроек):</div>
+                <div class="step-label">2. Саунд-дизайн и Жанр:</div>
                 <div class="options-grid" id="genre-opts">
                     <button class="opt-btn active" data-val="phonk">🏎️ Drift Phonk</button>
                     <button class="opt-btn" data-val="rage">🩸 Rage / Trap</button>
                     <button class="opt-btn" data-val="witch">🌑 Witch House</button>
-                    <button class="opt-btn" data-val="cyber">🔌 Industrial Cyber</button>
+                    <button class="opt-btn" data-val="cyber">🔌 Industrial</button>
                     <button class="opt-btn" data-val="ambient">🌌 Dark Ambient</button>
                     <button class="opt-btn" data-val="lofi">📼 Lo-Fi Dystopia</button>
                 </div>
             </div>
         </div>
 
-        <button class="action-btn" id="generate-btn">ПОДОБРАТЬ ВАЙБ (СГЕНЕРИРОВАТЬ)</button>
+        <button class="action-btn" id="generate-btn">ПОДОБРАТЬ ВАЙБ (ЗАПУСТИТЬ)</button>
 
         <div class="tracklist" id="tracklist">
-            <div style="text-align:center; color:var(--muted); margin-top:40px; font-size:11px; font-family:JetBrains Mono;">Нажми кнопку выше для поиска треков</div>
+            <div style="text-align:center; color:var(--muted); margin-top:40px; font-size:11px; font-family:JetBrains Mono;">Нажми кнопку выше</div>
         </div>
 
         <div class="player-bar">
-            <button class="ctrl-btn" id="prev-btn" title="Предыдущий">⏮</button>
+            <button class="ctrl-btn" id="prev-btn">⏮</button>
             <button class="ctrl-btn play-master-btn" id="master-play-btn">▶</button>
-            <button class="ctrl-btn" id="next-btn" title="Следующий">⏭</button>
+            <button class="ctrl-btn" id="next-btn">⏭</button>
             <div class="current-playing-info">
                 <div class="cp-title" id="cp-title">Трек не выбран</div>
                 <div class="cp-sub">
@@ -356,16 +330,13 @@
     </div>
 
     <script>
-        // База реальных треков с открытых CDN и аудио-каталогов под выбранные жесткие жанры
         const database = [
-            { name: "MURDER IN MY MIND (Remix)", author: "Kordhell / Phonk", genre: "phonk", intensity: "fast", duration: "2:15", thumb: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" },
-            { name: "RAAGE // SYSTEM OVERLOAD", author: "Ken Carson Style", genre: "rage", intensity: "fast", duration: "1:58", thumb: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
-            { name: "EPITAPH // CEMETERY GATES", author: "Svdden Death / Witch", genre: "witch", intensity: "slow", duration: "3:40", thumb: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Classical_guitar_gros_miracle.ogg" },
-            { name: "INDUSTRIAL TOXICITY", author: "Gesaffelstein Vibe", genre: "cyber", intensity: "mid", duration: "2:50", thumb: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" },
-            { name: "VOID // LOST SIGNALS", author: "Dark Cyber Ambient", genre: "ambient", intensity: "slow", duration: "4:12", thumb: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
-            { name: "GLITCHED CASSETTE TAPE", author: "Broken Memory", genre: "lofi", intensity: "slow", duration: "2:30", thumb: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" },
-            { name: "DRIFTKART // TOKYO DRIFT", author: "DVRST Style", genre: "phonk", intensity: "mid", duration: "2:20", thumb: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" },
-            { name: "RAGE IN THE MATRIX", author: "Hyperpop Heavy", genre: "rage", intensity: "fast", duration: "2:05", thumb: "https://images.unsplash.com/photo-1563089145-599997674d42?w=100&auto=format&fit=crop&q=60", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" }
+            { name: "MURDER IN MY MIND", author: "Kordhell / Phonk", genre: "phonk", duration: "2:15", thumb: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=100", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" },
+            { name: "RAAGE SYSTEM", author: "Ken Carson Style", genre: "rage", duration: "1:58", thumb: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=100", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
+            { name: "EPITAPH GATES", author: "Witch House", genre: "witch", duration: "3:40", thumb: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=100", url: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Classical_guitar_gros_miracle.ogg" },
+            { name: "INDUSTRIAL TOXICITY", author: "Gesaffelstein", genre: "cyber", duration: "2:50", thumb: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=100", url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" },
+            { name: "VOID LOST SIGNALS", author: "Dark Ambient", genre: "ambient", duration: "4:12", thumb: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=100", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
+            { name: "GLITCHED CASSETTE", author: "Lo-Fi Dystopia", genre: "lofi", duration: "2:30", thumb: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" }
         ];
 
         let currentPlaylist = [];
@@ -376,20 +347,20 @@
         let selectedIntensity = 'slow';
         let selectedGenre = 'phonk';
 
-        // Инициализация кнопок конфигурации
-        function setupSelector(containerId, callback) {
+        // Переключение настроек
+        function initSelectors(containerId, callback) {
             const container = document.getElementById(containerId);
             container.querySelectorAll('.opt-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
+                btn.onclick = (e) => {
                     container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    callback(e.target.getAttribute('data-val'));
-                });
+                    e.currentTarget.classList.add('active');
+                    callback(e.currentTarget.getAttribute('data-val'));
+                };
             });
         }
 
-        setupSelector('intensity-opts', (val) => selectedIntensity = val);
-        setupSelector('genre-opts', (val) => selectedGenre = val);
+        initSelectors('intensity-opts', (val) => selectedIntensity = val);
+        initSelectors('genre-opts', (val) => selectedGenre = val);
 
         const generateBtn = document.getElementById('generate-btn');
         const sysStatus = document.getElementById('sys-status');
@@ -399,36 +370,28 @@
         const cpTime = document.getElementById('cp-time');
         const masterPlayBtn = document.getElementById('master-play-btn');
 
-        // Кнопка подбора вайба с имитацией загрузки
-        generateBtn.addEventListener('click', () => {
-            sysStatus.textContent = "LOADING...";
-            generateBtn.textContent = "ПОИСК В БАЗЕ...";
+        generateBtn.onclick = () => {
+            sysStatus.textContent = "LOADING";
+            generateBtn.textContent = "ГЕНЕРАЦИЯ...";
             
             setTimeout(() => {
-                // Бесконечная генерация подборки: фильтруем или создаем микс на основе выбранных параметров
                 const matched = database.filter(t => t.genre === selectedGenre);
                 currentPlaylist = [];
                 
-                // Набиваем бесконечный пул из 30 треков на основе выбранного жанра
-                for (let i = 1; i <= 30; i++) {
-                    const template = matched.length > 0 
-                        ? matched[Math.floor(Math.random() * matched.length)] 
-                        | : database[Math.floor(Math.random() * database.length)];
-                    
+                for (let i = 1; i <= 25; i++) {
+                    const template = matched.length > 0 ? matched[Math.floor(Math.random() * matched.length)] : database[0];
                     currentPlaylist.push({
                         ...template,
-                        name: `${template.name} [v.${i}]`
+                        name: `${template.name} [${i}]`
                     });
                 }
 
                 renderTracks();
                 sysStatus.textContent = "READY";
-                generateBtn.textContent = "ПОДОБРАТЬ ВАЙБ (СГЕНЕРИРОВАТЬ)";
-                
-                // Автоматически запускаем первый трек с пресета
+                generateBtn.textContent = "ПОДОБРАТЬ ВАЙБ (ЗАПУСТИТЬ)";
                 playTrack(0);
-            }, 500);
-        });
+            }, 300);
+        };
 
         function renderTracks() {
             tracklistEl.innerHTML = '';
@@ -438,127 +401,13 @@
                 if (currentIndex === index && !audio.paused) item.classList.add('playing');
 
                 item.innerHTML = `
-                    <img class="track-thumb" src="${track.thumb}" alt="img">
+                    <img class="track-thumb" src="${track.thumb}">
                     <div class="track-info">
                         <div class="track-name">${track.name}</div>
                         <div class="track-meta">
                             <span>${track.author}</span>
-                            <span>${track.duration}</span>
-                        </div>
-                    </div>
-                `;
+                            <span>${track.duration
 
-                item.addEventListener('click', () => playTrack(index));
-                tracklistEl.appendChild(item);
-            });
-        }
-
-        function playTrack(index) {
-            if (currentPlaylist.length === 0) return;
-            
-            currentIndex = index;
-            // Бесконечный цикл с закольцовыванием массива
-            if (currentIndex >= currentPlaylist.length) {
-                currentIndex = 0;
-            }
-
-            const track = currentPlaylist[currentIndex];
-            audio.src = track.url;
-            audio.load();
-
-            sysStatus.textContent = "PLAYING";
-            audio.play().then(() => {
-                masterPlayBtn.textContent = "⏸";
-                cpTitle.textContent = track.name;
-                cpAuthor.textContent = track.author;
-                renderTracks();
-            }).catch(e => {
-                console.error(e);
-                sysStatus.textContent = "ERROR";
-            });
-        }
-
-        // Автоматический переход к следующему треку (бесконечный поток)
-        audio.addEventListener('ended', () => {
-            playTrack(currentIndex + 1);
-        });
-
-        // Отслеживание времени трека
-        audio.addEventListener('timeupdate', () => {
-            if (!isNaN(audio.duration)) {
-                const curM = Math.floor(audio.currentTime / 60);
-                const curS = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
-                const durM = Math.floor(audio.duration / 60);
-                const durS = Math.floor(audio.duration % 60).toString().padStart(2, '0');
-                cpTime.textContent = `${curM}:${curS} / ${durM}:${durS}`;
-            }
-        });
-
-        // Управление плеером
-        masterPlayBtn.addEventListener('click', () => {
-            if (!audio.src && currentPlaylist.length > 0) {
-                playTrack(0);
-                return;
-            }
-            if (audio.paused) {
-                audio.play();
-                masterPlayBtn.textContent = "⏸";
-                sysStatus.textContent = "PLAYING";
-            } else {
-                audio.pause();
-                masterPlayBtn.textContent = "▶";
-                sysStatus.textContent = "PAUSED";
-            }
-            renderTracks();
-        });
-
-        document.getElementById('next-btn').addEventListener('click', () => {
-            playTrack(currentIndex + 1);
-        });
-
-        document.getElementById('prev-btn').addEventListener('click', () => {
-            playTrack(currentIndex - 1 >= 0 ? currentIndex - 1 : currentPlaylist.length - 1);
-        });
-
-        // Визуализатор фона
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        let step = 0;
-        function animate() {
-            ctx.fillStyle = '#030305';
-            ctx.fillRect(0, 0, width, height);
-
-            const isPlaying = !audio.paused;
-            step += isPlaying ? 0.04 : 0.008;
-
-            ctx.lineWidth = 1.5;
-            for (let i = 0; i < 4; i++) {
-                ctx.beginPath();
-                ctx.strokeStyle = isPlaying ? `rgba(240, 0, 86, ${0.12 + i*0.04})` : `rgba(110, 110, 130, 0.04)`;
-                
-                for (let x = 0; x < width; x += 15) {
-                    const y = height / 2 + Math.sin(x * 0.003 + step + i * 0.6) * (isPlaying ? 55 : 15);
-                    if (x === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-            }
-
-            requestAnimationFrame(animate);
-        }
-        animate();
-    </script>
-</body>
-</html>
 
 
 
