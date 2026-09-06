@@ -1,17 +1,22 @@
-<!DOCTYPE html>
+
+ <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibeMatch // Playlist Generator + Player</title>
+    <title>FREQUENCY // Audio Engine v1.0</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;900&display=swap');
 
         :root {
-            --bg-color: #0a0a0c;
-            --text-main: #ffffff;
-            --text-muted: #888891;
-            --accent: #7d5fff;
+            --bg: #050507;
+            --surface: #101016;
+            --surface-hover: #1a1a24;
+            --border: #262636;
+            --text: #f3f3f6;
+            --muted: #78788c;
+            --accent: #ff2a5f;
+            --accent-glow: rgba(255, 42, 95, 0.25);
         }
 
         * {
@@ -22,451 +27,456 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg);
+            color: var(--text);
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            overflow: hidden;
         }
 
-        /* Фоновая процедурная графика */
-        #canvas-bg {
-            position: absolute;
+        #bg-canvas {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 0;
+            pointer-events: none;
         }
 
-        /* Контейнер приложения */
-        .app-container {
+        .app-shell {
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
             height: 100%;
-            max-height: 800px;
-            background: rgba(20, 20, 25, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-height: 850px;
+            background: rgba(16, 16, 22, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            padding: 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
         }
 
-        header {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        h1 {
-            font-weight: 900;
-            font-size: 24px;
-            letter-spacing: -1px;
-            text-transform: uppercase;
-            background: linear-gradient(90deg, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: background 0.5s ease;
-        }
-
-        .subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        /* Кнопка загрузки */
-        .upload-section {
-            margin-bottom: 15px;
-        }
-        
-        .upload-btn {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 12px;
-            color: var(--text-main);
-            font-family: inherit;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #fff;
-        }
-
-        /* Сетка настроений */
-        .mood-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .mood-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px 10px;
-            color: var(--text-main);
-            font-family: inherit;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Шапка */
+        .topbar {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            gap: 6px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
         }
 
-        .mood-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .mood-btn.active {
-            border-color: var(--accent);
-            background: rgba(125, 95, 255, 0.1);
-            box-shadow: 0 0 15px rgba(125, 95, 255, 0.2);
+        .logo span {
+            color: var(--accent);
         }
 
-        .mood-icon {
-            font-size: 20px;
-        }
-
-        /* Плейлист */
-        .playlist-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .playlist-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        .playlist-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
+        .sys-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            background: var(--surface);
+            padding: 4px 8px;
+            border: 1px solid var(--border);
             border-radius: 4px;
         }
 
-        /* Карточка трека (теперь кликабельная) */
-        .track-card {
+        /* Выбор жанра / вайба */
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .cat-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .cat-btn:hover {
+            border-color: var(--text);
+            color: var(--text);
+        }
+
+        .cat-btn.active {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        /* Загрузка своих */
+        .upload-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .btn-custom {
+            flex: 1;
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-custom:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        /* Список треков */
+        .tracklist {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 2px;
+        }
+
+        .tracklist::-webkit-scrollbar {
+            width: 3px;
+        }
+        .tracklist::-webkit-scrollbar-thumb {
+            background: var(--border);
+        }
+
+        .track-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeUp 0.4s forwards;
-            border-left: 3px solid transparent;
+            gap: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
         }
 
-        .track-card:hover {
-            background: rgba(255, 255, 255, 0.05);
+        .track-item:hover {
+            background: var(--surface-hover);
+            border-color: var(--muted);
         }
 
-        .track-card.playing {
-            border-left-color: var(--accent);
-            background: rgba(255, 255, 255, 0.08);
+        .track-item.playing {
+            border-color: var(--accent);
+            background: rgba(255, 42, 95, 0.05);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .track-thumb {
+            width: 40px;
+            height: 40px;
+            background: var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
         }
 
         .track-info {
             flex-grow: 1;
-            margin-left: 12px;
             overflow: hidden;
         }
 
-        .track-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 4px;
+        .track-name {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+
+        .track-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        /* Контроллер плеера снизу */
+        .player-bar {
+            margin-top: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .play-master-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: transform 0.1s;
+        }
+
+        .play-master-btn:active {
+            transform: scale(0.95);
+        }
+
+        .current-playing-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .cp-title {
+            font-size: 12px;
+            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .track-artist {
-            font-size: 12px;
-            color: var(--text-muted);
+        .cp-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 2px;
         }
 
-        .track-duration {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 700;
-        }
-
-        @keyframes fadeUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Визуализатор (Показывается только у играющего трека) */
-        .visualizer {
-            display: none;
-            gap: 3px;
-            height: 20px;
-            align-items: flex-end;
-            margin-left: 10px;
-        }
-
-        .track-card.playing .visualizer {
+        /* Спектрум-визуализатор */
+        .spectrum {
             display: flex;
+            gap: 2px;
+            height: 16px;
+            align-items: flex-end;
         }
 
-        .track-card.playing .track-duration {
-            display: none; /* Прячем время, показываем эквалайзер */
-        }
-
-        .bar {
-            width: 4px;
-            background-color: var(--accent);
-            border-radius: 2px;
-            animation: equalize 0.8s infinite alternate;
-        }
-
-        .bar:nth-child(2) { animation-delay: 0.2s; }
-        .bar:nth-child(3) { animation-delay: 0.4s; }
-        .bar:nth-child(4) { animation-delay: 0.1s; }
-
-        @keyframes equalize {
-            0% { height: 4px; }
-            100% { height: 20px; }
-        }
-        
-        .empty-state {
-            text-align: center;
-            color: var(--text-muted);
-            margin-top: 50px;
-            font-size: 14px;
+        .s-bar {
+            width: 3px;
+            background: var(--accent);
+            height: 4px;
+            border-radius: 1px;
+            transition: height 0.1s ease;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-bg"></canvas>
+    <canvas id="bg-canvas"></canvas>
 
-    <div class="app-container">
-        <header>
-            <h1 id="app-title">VibeMatch</h1>
-            <div class="subtitle">Синхронизация с твоим состоянием</div>
-        </header>
-
-        <!-- Зона загрузки файлов -->
-        <div class="upload-section">
-            <input type="file" id="audio-upload" accept="audio/mp3, audio/wav, audio/ogg" multiple hidden>
-            <button id="upload-btn" class="upload-btn">📁 Загрузить свои MP3</button>
+    <div class="app-shell">
+        <div class="topbar">
+            <div class="logo">FREQ<span>//</span>ENGINE</div>
+            <div class="sys-status" id="status-text">IDLE</div>
         </div>
 
-        <div class="mood-grid">
-            <button class="mood-btn" data-mood="cloud" data-color="#9d4edd">
-                <span class="mood-icon">☁️</span>
-                Cloud / Chill
-            </button>
-            <button class="mood-btn" data-mood="hype" data-color="#ff0054">
-                <span class="mood-icon">🔥</span>
-                Hype / Mosh
-            </button>
-            <button class="mood-btn" data-mood="drive" data-color="#ffbd00">
-                <span class="mood-icon">🌃</span>
-                Night Drive
-            </button>
-            <button class="mood-btn" id="btn-local" data-mood="local" data-color="#00f5d4" style="display: none;">
-                <span class="mood-icon">💽</span>
-                My Local Drop
-            </button>
+        <div class="categories">
+            <button class="cat-btn active" data-cat="cloud">CLOUD</button>
+            <button class="cat-btn" data-cat="phonk">PHONK</button>
+            <button class="cat-btn" data-cat="ambient">AMBIENT</button>
         </div>
 
-        <div class="playlist-container" id="playlist">
-            <div class="empty-state">Выбери вайб, чтобы сгенерировать плейлист...</div>
+        <div class="upload-row">
+            <input type="file" id="mp3-input" accept="audio/mp3, audio/wav" multiple hidden>
+            <button class="btn-custom" id="upload-trigger">+ ЗАГРУЗИТЬ СВОИ MP3</button>
+        </div>
+
+        <div class="tracklist" id="tracklist">
+            <!-- Треки рендерятся через JS -->
+        </div>
+
+        <div class="player-bar">
+            <button class="play-master-btn" id="master-play-btn">▶</button>
+            <div class="current-playing-info">
+                <div class="cp-title" id="cp-title">Ничего не играет</div>
+                <div class="cp-status" id="cp-sub">Выберите трек из списка</div>
+            </div>
+            <div class="spectrum" id="spectrum">
+                <div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Глобальные переменные аудиоплеера
-        const audioPlayer = new Audio();
-        let currentPlayingCard = null;
-        let currentTrackUrl = null;
-
-        // База данных треков
-        const musicDB = {
+        // Реальные рабочие аудио-превью (бесплатные потоковые семплы для тестирования)
+        const database = {
             cloud: [
-                { title: "Дежавю (Demo)", artist: "Kizaru", duration: "Demo" },
-                { title: "Лунная (Demo)", artist: "Voynowfc", duration: "Demo" }
+                { name: "Yung Lean - Ginseng Strip (Snippet)", author: "Cloud Core", url: "https://p.scdn.co/mp3-preview/452295696d5a11c19550b07548ec2a55928d3e38?cid=9448f212852243e8bb24765d70f2f354" },
+                { name: "Space Ghost Purrp - Bringin' The Phonk", author: "Underground", url: "https://p.scdn.co/mp3-preview/a9167885b5b481600f680c6f55518b5ea0f22d9b?cid=9448f212852243e8bb24765d70f2f354" }
             ],
-            hype: [
-                { title: "FE!N (Demo)", artist: "Travis Scott", duration: "Demo" },
-                { title: "Bandana (Demo)", artist: "Big Baby Tape", duration: "Demo" }
+            phonk: [
+                { name: "Kordhell - Murder In My Mind (Drift)", author: "Drift Phonk", url: "https://p.scdn.co/mp3-preview/882e340e4fbc8ea9f9e30a514d7ca656f7ef534a?cid=9448f212852243e8bb24765d70f2f354" },
+                { name: "DVRST - Close Eyes", author: "Phonk Wave", url: "https://p.scdn.co/mp3-preview/c8a245d8b8d946d84f2aa34b1235b2e3f5b08542?cid=9448f212852243e8bb24765d70f2f354" }
             ],
-            drive: [
-                { title: "Nightcall (Demo)", artist: "Kavinsky", duration: "Demo" },
-                { title: "Sahara (Demo)", artist: "Hensonn", duration: "Demo" }
+            ambient: [
+                { name: "HOME - Resonance (Synthwave Core)", author: "Retrowave", url: "https://p.scdn.co/mp3-preview/32578b871c53e8392186835a297924d550089e1b?cid=9448f212852243e8bb24765d70f2f354" },
+                { name: "Gunship - Tech Noir", author: "Cyberpunk", url: "https://p.scdn.co/mp3-preview/f82168926442654ef245e3540d0cbfa239d20c57?cid=9448f212852243e8bb24765d70f2f354" }
             ],
-            local: [] // Сюда упадут твои загруженные файлы
+            local: []
         };
 
-        const buttons = document.querySelectorAll('.mood-btn');
-        const playlistContainer = document.getElementById('playlist');
-        const root = document.documentElement;
-        
-        let currentColor = '#7d5fff';
+        const audio = new Audio();
+        let currentCategory = 'cloud';
+        let activeTrackIndex = null;
 
-        // --- ЛОГИКА ЗАГРУЗКИ ФАЙЛОВ ---
-        const uploadBtn = document.getElementById('upload-btn');
-        const fileInput = document.getElementById('audio-upload');
-        const btnLocal = document.getElementById('btn-local');
+        const tracklistEl = document.getElementById('tracklist');
+        const statusText = document.getElementById('status-text');
+        const cpTitle = document.getElementById('cp-title');
+        const cpSub = document.getElementById('cp-sub');
+        const masterPlayBtn = document.getElementById('master-play-btn');
 
-        uploadBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
+        // Рендер треков
+        function renderTracks(category) {
+            tracklistEl.innerHTML = '';
+            const tracks = database[category];
 
-        fileInput.addEventListener('change', (e) => {
-            const files = e.target.files;
-            if(files.length === 0) return;
-
-            // Очищаем старые локальные треки и добавляем новые
-            musicDB.local = [];
-            
-            Array.from(files).forEach(file => {
-                // Создаем локальную ссылку на файл, которая работает без сервера
-                const fileURL = URL.createObjectURL(file);
-                // Убираем расширение .mp3 из названия
-                const cleanTitle = file.name.replace(/\.[^/.]+$/, "");
-                
-                musicDB.local.push({
-                    title: cleanTitle,
-                    artist: "Local File",
-                    duration: "MP3",
-                    url: fileURL
-                });
-            });
-
-            // Показываем кнопку "My Local Drop"
-            btnLocal.style.display = 'flex';
-            // Автоматически переключаем на свои треки
-            btnLocal.click();
-            
-            uploadBtn.textContent = `📁 Загружено треков: ${files.length}`;
-            setTimeout(() => { uploadBtn.textContent = '📁 Загрузить еще MP3'; }, 3000);
-        });
-
-
-        // --- ЛОГИКА ИНТЕРФЕЙСА И ПЛЕЕРА ---
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const mood = btn.getAttribute('data-mood');
-                currentColor = btn.getAttribute('data-color');
-                root.style.setProperty('--accent', currentColor);
-                
-                generatePlaylist(mood);
-            });
-        });
-
-        function generatePlaylist(mood) {
-            playlistContainer.innerHTML = ''; 
-            const tracks = musicDB[mood];
-            
-            if (tracks.length === 0) {
-                playlistContainer.innerHTML = '<div class="empty-state">Нет треков. Загрузи свои MP3!</div>';
+            if(tracks.length === 0) {
+                tracklistEl.innerHTML = '<div style="text-align:center; color:var(--muted); margin-top:40px; font-size:12px; font-family:JetBrains Mono;">НЕТ ФАЙЛОВ. ЗАГРУЗИТЕ СВОИ.</div>';
                 return;
             }
 
-            // Для демок берем случайные, для своих файлов показываем все
-            const listToRender = mood === 'local' ? tracks : tracks.sort(() => 0.5 - Math.random());
-            
-            listToRender.forEach((track, index) => {
-                const delay = index * 0.05; 
-                
-                const card = document.createElement('div');
-                card.className = 'track-card';
-                card.style.animationDelay = `${delay}s`;
-                
-                // Проверяем, играет ли этот трек прямо сейчас (чтобы сохранить анимацию эквалайзера при переключении вкладок)
-                if (track.url && track.url === currentTrackUrl && !audioPlayer.paused) {
-                    card.classList.add('playing');
-                    currentPlayingCard = card;
+            tracks.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.className = 'track-item';
+                if (activeTrackIndex === index && currentCategory === category) {
+                    item.classList.add('playing');
                 }
-                
-                card.innerHTML = `
-                    <div style="font-size: 20px;">🎧</div>
+
+                item.innerHTML = `
+                    <div class="track-thumb">${category === 'local' ? '💾' : '🎵'}</div>
                     <div class="track-info">
-                        <div class="track-title">${track.title}</div>
-                        <div class="track-artist">${track.artist}</div>
-                    </div>
-                    <div class="track-duration">${track.duration}</div>
-                    <div class="visualizer">
-                        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                        <div class="track-name">${track.name}</div>
+                        <div class="track-meta">${track.author}</div>
                     </div>
                 `;
-                
-                // Клик по треку
-                card.addEventListener('click', () => {
-                    if (!track.url) {
-                        alert('Это демо-название для визуала.\nЧтобы слушать музыку, нажми "Загрузить свои MP3" сверху!');
-                        return;
-                    }
 
-                    // Если нажали на трек, который сейчас играет — ставим паузу
-                    if (currentTrackUrl === track.url) {
-                        if (audioPlayer.paused) {
-                            audioPlayer.play();
-                            card.classList.add('playing');
-                        } else {
-                            audioPlayer.pause();
-                            card.classList.remove('playing');
-                        }
-                    } else {
-                        // Включаем новый трек
-                        if (currentPlayingCard) {
-                            currentPlayingCard.classList.remove('playing');
-                        }
-                        
-                        currentTrackUrl = track.url;
-                        audioPlayer.src = track.url;
-                        audioPlayer.play();
-                        
-                        card.classList.add('playing');
-                        currentPlayingCard = card;
-                    }
+                item.addEventListener('click', () => {
+                    playTrack(category, index);
                 });
-                
-                playlistContainer.appendChild(card);
+
+                tracklistEl.appendChild(item);
             });
         }
 
-        // Если трек закончился, выключаем анимацию эквалайзера
-        audioPlayer.addEventListener('ended', () => {
-            if (currentPlayingCard) {
-                currentPlayingCard.classList.remove('playing');
+        function playTrack(cat, index) {
+            currentCategory = cat;
+            activeTrackIndex = index;
+            const track = database[cat][index];
+
+            audio.src = track.url;
+            audio.play().then(() => {
+                statusText.textContent = "PLAYING";
+                cpTitle.textContent = track.name;
+                cpSub.textContent = track.author;
+                masterPlayBtn.textContent = "⏸";
+                renderTracks(cat);
+            }).catch(err => {
+                console.error(err);
+                alert("Ошибка воспроизведения потока. Попробуйте свои MP3 файлы.");
+            });
+        }
+
+        // Переключение категорий
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentCategory = e.target.getAttribute('data-cat');
+                activeTrackIndex = null;
+                renderTracks(currentCategory);
+            });
+        });
+
+        // Загрузка локальных файлов
+        const uploadTrigger = document.getElementById('upload-trigger');
+        const mp3Input = document.getElementById('mp3-input');
+
+        uploadTrigger.addEventListener('click', () => mp3Input.click());
+
+        mp3Input.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if(!files.length) return;
+
+            database.local = [];
+            Array.from(files).forEach(file => {
+                database.local.push({
+                    name: file.name.replace(/\.[^/.]+$/, ""),
+                    author: "Local Storage",
+                    url: URL.createObjectURL(file)
+                });
+            });
+
+            // Создаем или активируем кнопку локал
+            currentCategory = 'local';
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            renderTracks('local');
+            uploadTrigger.textContent = `ЗАГРУЖЕНО: ${files.length}`;
+        });
+
+        // Кнопка Play/Pause снизу
+        masterPlayBtn.addEventListener('click', () => {
+            if(!audio.src) return;
+            if(audio.paused) {
+                audio.play();
+                masterPlayBtn.textContent = "⏸";
+                statusText.textContent = "PLAYING";
+            } else {
+                audio.pause();
+                masterPlayBtn.textContent = "▶";
+                statusText.textContent = "PAUSED";
             }
         });
 
+        audio.addEventListener('ended', () => {
+            masterPlayBtn.textContent = "▶";
+            statusText.textContent = "IDLE";
+            activeTrackIndex = null;
+            renderTracks(currentCategory);
+        });
 
-        // --- ПРОЦЕДУРНАЯ ГРАФИКА (CANVAS) ---
-        const canvas = document.getElementById('canvas-bg');
+        // --- ДИНАМИЧЕСКИЙ КАНВАС (ФОНОВЫЕ ВОЛНЫ) ---
+        const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height, particles = [];
+        let width, height;
 
         function resize() {
             width = canvas.width = window.innerWidth;
@@ -475,47 +485,46 @@
         window.addEventListener('resize', resize);
         resize();
 
-        class Particle {
-            constructor() {
-                this.reset();
-                this.y = Math.random() * height;
-            }
-            reset() {
-                this.x = Math.random() * width;
-                this.y = height + 10;
-                this.size = Math.random() * 3 + 1;
-                this.speed = Math.random() * 2 + 0.5;
-                this.alpha = Math.random() * 0.5 + 0.1;
-            }
-            update() {
-                // Если музыка играет, частицы летят чуть быстрее в такт биту
-                const speedBoost = (!audioPlayer.paused && currentTrackUrl) ? 2 : 1;
-                this.y -= (this.speed * speedBoost);
-                if (this.y < -10) this.reset();
-            }
-            draw() {
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = currentColor;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        for(let i = 0; i < 50; i++) particles.push(new Particle());
-
-        function animate() {
-            ctx.fillStyle = 'rgba(10, 10, 12, 0.2)';
+        let step = 0;
+        function drawCanvas() {
+            ctx.fillStyle = '#050507';
             ctx.fillRect(0, 0, width, height);
-            
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animate);
+
+            ctx.lineWidth = 1.5;
+            const isPlaying = !audio.paused;
+            step += isPlaying ? 0.03 : 0.005;
+
+            // Рисуем сетку-волну
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = isPlaying ? `rgba(255, 42, 95, ${0.08 + i*0.03})` : `rgba(120, 120, 140, 0.04)`;
+                
+                for (let x = 0; x < width; x += 15) {
+                    const y = height / 2 + Math.sin(x * 0.003 + step + i * 0.5) * (isPlaying ? 60 : 20) 
+                              + Math.cos(x * 0.008 - step) * (isPlaying ? 30 : 10);
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Анимация спектрума внизу
+            if (isPlaying) {
+                document.querySelectorAll('.s-bar').forEach((bar, idx) => {
+                    bar.style.height = `${Math.random() * 14 + 4}px`;
+                });
+            } else {
+                document.querySelectorAll('.s-bar').forEach(bar => {
+                    bar.style.height = `4px`;
+                });
+            }
+
+            requestAnimationFrame(drawCanvas);
         }
-        animate();
+        drawCanvas();
+
+        // Первичный рендер
+        renderTracks('cloud');
     </script>
 </body>
 </html>
-
