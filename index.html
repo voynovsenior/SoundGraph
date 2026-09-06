@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VibeMatch // Playlist Generator + Player</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        :root {
+            --bg-color: #0a0a0c;
+            --text-main: #ffffff;
+            --text-muted: #888891;
+            --accent: #7d5fff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Фоновая процедурная графика */
+        #canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Контейнер приложения */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 800px;
+            background: rgba(20, 20, 25, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: background 0.5s ease;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Кнопка загрузки */
+        .upload-section {
+            margin-bottom: 15px;
+        }
+        
+        .upload-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+
+        /* Сетка настроений */
+        .mood-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mood-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 10px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mood-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .mood-btn.active {
+            border-color: var(--accent);
+            background: rgba(125, 95, 255, 0.1);
+            box-shadow: 0 0 15px rgba(125, 95, 255, 0.2);
+        }
+
+        .mood-icon {
+            font-size: 20px;
+        }
+
+        /* Плейлист */
+        .playlist-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .playlist-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .playlist-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        /* Карточка трека (теперь кликабельная) */
+        .track-card {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeUp 0.4s forwards;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .track-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .track-card.playing {
+            border-left-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .track-info {
+            flex-grow: 1;
+            margin-left: 12px;
+            overflow: hidden;
+        }
+
+        .track-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .track-duration {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Визуализатор (Показывается только у играющего трека) */
+        .visualizer {
+            display: none;
+            gap: 3px;
+            height: 20px;
+            align-items: flex-end;
+            margin-left: 10px;
+        }
+
+        .track-card.playing .visualizer {
+            display: flex;
+        }
+
+        .track-card.playing .track-duration {
+            display: none; /* Прячем время, показываем эквалайзер */
+        }
+
+        .bar {
+            width: 4px;
+            background-color: var(--accent);
+            border-radius: 2px;
+            animation: equalize 0.8s infinite alternate;
+        }
+
+        .bar:nth-child(2) { animation-delay: 0.2s; }
+        .bar:nth-child(3) { animation-delay: 0.4s; }
+        .bar:nth-child(4) { animation-delay: 0.1s; }
+
+        @keyframes equalize {
+            0% { height: 4px; }
+            100% { height: 20px; }
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 50px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="app-container">
+        <header>
+            <h1 id="app-title">VibeMatch</h1>
+            <div class="subtitle">Синхронизация с твоим состоянием</div>
+        </header>
+
+        <!-- Зона загрузки файлов -->
+        <div class="upload-section">
+            <input type="file" id="audio-upload" accept="audio/mp3, audio/wav, audio/ogg" multiple hidden>
+            <button id="upload-btn" class="upload-btn">📁 Загрузить свои MP3</button>
+        </div>
+
+        <div class="mood-grid">
+            <button class="mood-btn" data-mood="cloud" data-color="#9d4edd">
+                <span class="mood-icon">☁️</span>
+                Cloud / Chill
+            </button>
+            <button class="mood-btn" data-mood="hype" data-color="#ff0054">
+                <span class="mood-icon">🔥</span>
+                Hype / Mosh
+            </button>
+            <button class="mood-btn" data-mood="drive" data-color="#ffbd00">
+                <span class="mood-icon">🌃</span>
+                Night Drive
+            </button>
+            <button class="mood-btn" id="btn-local" data-mood="local" data-color="#00f5d4" style="display: none;">
+                <span class="mood-icon">💽</span>
+                My Local Drop
+            </button>
+        </div>
+
+        <div class="playlist-container" id="playlist">
+            <div class="empty-state">Выбери вайб, чтобы сгенерировать плейлист...</div>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные аудиоплеера
+        const audioPlayer = new Audio();
+        let currentPlayingCard = null;
+        let currentTrackUrl = null;
+
+        // База данных треков
+        const musicDB = {
+            cloud: [
+                { title: "Дежавю (Demo)", artist: "Kizaru", duration: "Demo" },
+                { title: "Лунная (Demo)", artist: "Voynowfc", duration: "Demo" }
+            ],
+            hype: [
+                { title: "FE!N (Demo)", artist: "Travis Scott", duration: "Demo" },
+                { title: "Bandana (Demo)", artist: "Big Baby Tape", duration: "Demo" }
+            ],
+            drive: [
+                { title: "Nightcall (Demo)", artist: "Kavinsky", duration: "Demo" },
+                { title: "Sahara (Demo)", artist: "Hensonn", duration: "Demo" }
+            ],
+            local: [] // Сюда упадут твои загруженные файлы
+        };
+
+        const buttons = document.querySelectorAll('.mood-btn');
+        const playlistContainer = document.getElementById('playlist');
+        const root = document.documentElement;
+        
+        let currentColor = '#7d5fff';
+
+        // --- ЛОГИКА ЗАГРУЗКИ ФАЙЛОВ ---
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('audio-upload');
+        const btnLocal = document.getElementById('btn-local');
+
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if(files.length === 0) return;
+
+            // Очищаем старые локальные треки и добавляем новые
+            musicDB.local = [];
+            
+            Array.from(files).forEach(file => {
+                // Создаем локальную ссылку на файл, которая работает без сервера
+                const fileURL = URL.createObjectURL(file);
+                // Убираем расширение .mp3 из названия
+                const cleanTitle = file.name.replace(/\.[^/.]+$/, "");
+                
+                musicDB.local.push({
+                    title: cleanTitle,
+                    artist: "Local File",
+                    duration: "MP3",
+                    url: fileURL
+                });
+            });
+
+            // Показываем кнопку "My Local Drop"
+            btnLocal.style.display = 'flex';
+            // Автоматически переключаем на свои треки
+            btnLocal.click();
+            
+            uploadBtn.textContent = `📁 Загружено треков: ${files.length}`;
+            setTimeout(() => { uploadBtn.textContent = '📁 Загрузить еще MP3'; }, 3000);
+        });
+
+
+        // --- ЛОГИКА ИНТЕРФЕЙСА И ПЛЕЕРА ---
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const mood = btn.getAttribute('data-mood');
+                currentColor = btn.getAttribute('data-color');
+                root.style.setProperty('--accent', currentColor);
+                
+                generatePlaylist(mood);
+            });
+        });
+
+        function generatePlaylist(mood) {
+            playlistContainer.innerHTML = ''; 
+            const tracks = musicDB[mood];
+            
+            if (tracks.length === 0) {
+                playlistContainer.innerHTML = '<div class="empty-state">Нет треков. Загрузи свои MP3!</div>';
+                return;
+            }
+
+            // Для демок берем случайные, для своих файлов показываем все
+            const listToRender = mood === 'local' ? tracks : tracks.sort(() => 0.5 - Math.random());
+            
+            listToRender.forEach((track, index) => {
+                const delay = index * 0.05; 
+                
+                const card = document.createElement('div');
+                card.className = 'track-card';
+                card.style.animationDelay = `${delay}s`;
+                
+                // Проверяем, играет ли этот трек прямо сейчас (чтобы сохранить анимацию эквалайзера при переключении вкладок)
+                if (track.url && track.url === currentTrackUrl && !audioPlayer.paused) {
+                    card.classList.add('playing');
+                    currentPlayingCard = card;
+                }
+                
+                card.innerHTML = `
+                    <div style="font-size: 20px;">🎧</div>
+                    <div class="track-info">
+                        <div class="track-title">${track.title}</div>
+                        <div class="track-artist">${track.artist}</div>
+                    </div>
+                    <div class="track-duration">${track.duration}</div>
+                    <div class="visualizer">
+                        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                    </div>
+                `;
+                
+                // Клик по треку
+                card.addEventListener('click', () => {
+                    if (!track.url) {
+                        alert('Это демо-название для визуала.\nЧтобы слушать музыку, нажми "Загрузить свои MP3" сверху!');
+                        return;
+                    }
+
+                    // Если нажали на трек, который сейчас играет — ставим паузу
+                    if (currentTrackUrl === track.url) {
+                        if (audioPlayer.paused) {
+                            audioPlayer.play();
+                            card.classList.add('playing');
+                        } else {
+                            audioPlayer.pause();
+                            card.classList.remove('playing');
+                        }
+                    } else {
+                        // Включаем новый трек
+                        if (currentPlayingCard) {
+                            currentPlayingCard.classList.remove('playing');
+                        }
+                        
+                        currentTrackUrl = track.url;
+                        audioPlayer.src = track.url;
+                        audioPlayer.play();
+                        
+                        card.classList.add('playing');
+                        currentPlayingCard = card;
+                    }
+                });
+                
+                playlistContainer.appendChild(card);
+            });
+        }
+
+        // Если трек закончился, выключаем анимацию эквалайзера
+        audioPlayer.addEventListener('ended', () => {
+            if (currentPlayingCard) {
+                currentPlayingCard.classList.remove('playing');
+            }
+        });
+
+
+        // --- ПРОЦЕДУРНАЯ ГРАФИКА (CANVAS) ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * height;
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + 10;
+                this.size = Math.random() * 3 + 1;
+                this.speed = Math.random() * 2 + 0.5;
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                // Если музыка играет, частицы летят чуть быстрее в такт биту
+                const speedBoost = (!audioPlayer.paused && currentTrackUrl) ? 2 : 1;
+                this.y -= (this.speed * speedBoost);
+                if (this.y < -10) this.reset();
+            }
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = currentColor;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for(let i = 0; i < 50; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 12, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
+
