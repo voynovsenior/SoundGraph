@@ -139,24 +139,6 @@
             color: var(--text);
         }
 
-        .action-btn {
-            background: var(--accent);
-            color: #050507;
-            border: none;
-            border-radius: 8px;
-            padding: 11px;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 800;
-            font-size: 12px;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-
         .tracklist {
             flex-grow: 1;
             overflow-y: auto;
@@ -312,19 +294,15 @@
                 <button class="opt-btn" data-val="drift">🏎️ Дрифт / Трасса</button>
                 <button class="opt-btn" data-val="cloud">☁️ Облачный рэп</button>
             </div>
-
-            <button class="action-btn" id="generate-btn">ЗАПУСТИТЬ БЕСКОНЕЧНЫЙ ПОТОК</button>
         </div>
 
-        <div class="tracklist" id="tracklist">
-            <div style="text-align:center; color:var(--muted); margin-top:20px; font-size:12px; font-family:JetBrains Mono;">Нажми кнопку запуска, чтобы собрать плейлист</div>
-        </div>
+        <div class="tracklist" id="tracklist"></div>
 
         <div class="player-bar">
             <button class="play-master-btn" id="master-play-btn">▶</button>
             <div class="current-playing-info">
                 <div class="cp-title" id="cp-title">Ничего не играет</div>
-                <div class="cp-status" id="cp-sub">Ожидание старта</div>
+                <div class="cp-status" id="cp-sub">Выберите трек</div>
             </div>
             <div class="spectrum" id="spectrum">
                 <div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div>
@@ -333,18 +311,29 @@
     </div>
 
     <script>
-        // Большая база стабильных треков с генератором бесконечной очереди
-        const baseTracks = [
-            { name: "Cyberpunk Night Walk", author: "Synthwave Core", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
-            { name: "Underground Bass Boosted", author: "Phonk Lab", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" },
-            { name: "Cloud Nine Session", author: "Voynowfc Vibe", url: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Classical_guitar_gros_miracle.ogg" },
-            { name: "Neon Highway Speed", author: "Drift Wave", url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" },
-            { name: "Deep Focus Code Flow", author: "Ambient Engine", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
-            { name: "Midnight Drift Bounce", author: "Phonk Street", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" }
+        // Настоящие названия в стиле вайба/рэпа/фонка без левой отсебятины
+        const trackTemplates = [
+            { name: "Cyberpunk Night Walk // Slowed", author: "Synthwave Core" },
+            { name: "Underground Bass Boosted", author: "Phonk Lab" },
+            { name: "Cloud Nine Session (Prod. Voynowfc)", author: "Cloud Vibe" },
+            { name: "Neon Highway Speed", author: "Drift Wave" },
+            { name: "Deep Focus Code Flow", author: "Ambient Engine" },
+            { name: "Midnight Drift Bounce", author: "Phonk Street" },
+            { name: "Hustle Hard & Silent", author: "Trap Underground" },
+            { name: "Dark Alleys & Neon", author: "Cyber Core" }
+        ];
+
+        // Стабильные аудиопотоки
+        const audioPool = [
+            "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg",
+            "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg",
+            "https://upload.wikimedia.org/wikipedia/commons/8/8b/Classical_guitar_gros_miracle.ogg",
+            "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg"
         ];
 
         let currentPlaylist = [];
         let currentIndex = 0;
+        let trackCounter = 1;
         const audio = new Audio();
 
         let selectedIntensity = 'chill';
@@ -357,6 +346,10 @@
                     container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     callback(e.target.getAttribute('data-val'));
+                    trackCounter = 1;
+                    currentPlaylist = [];
+                    generateBatch(15);
+                    renderTracks();
                 });
             });
         }
@@ -364,24 +357,17 @@
         setupSelector('intensity-opts', (val) => selectedIntensity = val);
         setupSelector('vibe-opts', (val) => selectedVibe = val);
 
-        document.getElementById('generate-btn').addEventListener('click', () => {
-            buildInfinitePlaylist();
-            playTrack(0);
-        });
-
-        // Генерация большой очереди (бесконечный плейлист)
-        function buildInfinitePlaylist() {
-            currentPlaylist = [];
-            // Создаем микс из 20 автоматически генерируемых позиций на основе выбранного вайба
-            for (let i = 1; i <= 20; i++) {
-                const randomTemplate = baseTracks[Math.floor(Math.random() * baseTracks.length)];
+        function generateBatch(count = 10) {
+            for (let i = 0; i < count; i++) {
+                const template = trackTemplates[Math.floor(Math.random() * trackTemplates.length)];
+                const randomUrl = audioPool[Math.floor(Math.random() * audioPool.length)];
                 currentPlaylist.push({
-                    name: `${selectedVibe.toUpperCase()} #${i}: ${randomTemplate.name}`,
-                    author: `${selectedIntensity.toUpperCase()} // ${randomTemplate.author}`,
-                    url: randomTemplate.url
+                    id: trackCounter++,
+                    name: `${template.name} [${selectedVibe.toUpperCase()}]`,
+                    author: `${selectedIntensity.toUpperCase()} // ${template.author}`,
+                    url: randomUrl
                 });
             }
-            renderTracks();
         }
 
         const tracklistEl = document.getElementById('tracklist');
@@ -411,18 +397,18 @@
         }
 
         function playTrack(index) {
-            if (currentPlaylist.length === 0) buildInfinitePlaylist();
-            
             currentIndex = index;
-            if (currentIndex >= currentPlaylist.length) {
-                currentIndex = 0; // Зацикливаем бесконечно
+            
+            // Если дошли до конца текущего списка — догенерируем еще пачку (бесконечность)
+            if (currentIndex >= currentPlaylist.length - 3) {
+                generateBatch(10);
             }
 
             const track = currentPlaylist[currentIndex];
             audio.src = track.url;
             audio.load();
             audio.play().then(() => {
-                statusText.textContent = `PLAY [${currentIndex + 1}]`;
+                statusText.textContent = `PLAY #${track.id}`;
                 cpTitle.textContent = track.name;
                 cpSub.textContent = track.author;
                 masterPlayBtn.textContent = "⏸";
@@ -433,14 +419,12 @@
             });
         }
 
-        // Автоматический переход к следующему треку при завершении текущего (бесконечный поток)
         audio.addEventListener('ended', () => {
             playTrack(currentIndex + 1);
         });
 
         masterPlayBtn.addEventListener('click', () => {
             if (!audio.src) {
-                buildInfinitePlaylist();
                 playTrack(0);
                 return;
             }
@@ -455,7 +439,6 @@
             }
         });
 
-        // Анимация визуализатора и канваса
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -501,8 +484,13 @@
             requestAnimationFrame(animate);
         }
         animate();
+
+        // Первый запуск: генерируем начальные треки
+        generateBatch(20);
+        renderTracks();
     </script>
 </body>
 </html>
+
 
 
