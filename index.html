@@ -367,27 +367,23 @@
         const cpTime = document.getElementById('cp-time');
         const masterPlayBtn = document.getElementById('master-play-btn');
 
+        // Прямой запуск по клику пользователя — сбрасывает блокировку мобильного браузера
         generateBtn.addEventListener('click', () => {
-            sysStatus.textContent = "GENERATING";
-            generateBtn.textContent = "ПОДБОР ВАЙБА...";
+            sysStatus.textContent = "ONLINE";
+            
+            const matched = database.filter(t => t.genre === selectedGenre);
+            currentPlaylist = [];
 
-            setTimeout(() => {
-                const matched = database.filter(t => t.genre === selectedGenre);
-                currentPlaylist = [];
+            for (let i = 1; i <= 50; i++) {
+                const template = matched.length > 0 ? matched[Math.floor(Math.random() * matched.length)] : database[0];
+                currentPlaylist.push({
+                    ...template,
+                    name: `${template.name} [${selectedIntensity.toUpperCase()} #${i}]`
+                });
+            }
 
-                for (let i = 1; i <= 50; i++) {
-                    const template = matched.length > 0 ? matched[Math.floor(Math.random() * matched.length)] : database[0];
-                    currentPlaylist.push({
-                        ...template,
-                        name: `${template.name} [${selectedIntensity.toUpperCase()} #${i}]`
-                    });
-                }
-
-                renderTracks();
-                sysStatus.textContent = "ONLINE";
-                generateBtn.textContent = "ПОДОБРАТЬ ВАЙБ (ЗАПУСТИТЬ)";
-                playTrack(0);
-            }, 250);
+            renderTracks();
+            playTrack(0);
         });
 
         function renderTracks() {
@@ -434,6 +430,7 @@
             }).catch(e => {
                 console.error("Playback error:", e);
                 sysStatus.textContent = "TAP PLAY";
+                masterPlayBtn.textContent = "▶";
             });
         }
 
@@ -452,7 +449,11 @@
         });
 
         masterPlayBtn.addEventListener('click', () => {
-            if (!audio.src && currentPlaylist.length > 0) {
+            if (currentPlaylist.length === 0) {
+                sysStatus.textContent = "GENERATE FIRST";
+                return;
+            }
+            if (!audio.src) {
                 playTrack(0);
                 return;
             }
@@ -515,6 +516,7 @@
     </script>
 </body>
 </html>
+
 
 
 
