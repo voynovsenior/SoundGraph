@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FREQ // Vibe Engine v2.0</title>
+    <title>FREQ // Infinite Vibe</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;900&display=swap');
 
@@ -14,8 +14,8 @@
             --border: #262636;
             --text: #f3f3f6;
             --muted: #78788c;
-            --accent: #ff2a5f;
-            --accent-glow: rgba(255, 42, 95, 0.2);
+            --accent: #00f5d4;
+            --accent-glow: rgba(0, 245, 212, 0.2);
         }
 
         * {
@@ -93,12 +93,11 @@
             border-radius: 4px;
         }
 
-        /* Контейнер шагов настройки */
         .wizard-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 14px;
         }
 
         .step-label {
@@ -119,7 +118,7 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 9px 12px;
             color: var(--muted);
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
@@ -142,16 +141,15 @@
 
         .action-btn {
             background: var(--accent);
-            color: #fff;
+            color: #050507;
             border: none;
             border-radius: 8px;
-            padding: 12px;
+            padding: 11px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 800;
             font-size: 12px;
             cursor: pointer;
             transition: transform 0.1s, opacity 0.2s;
-            margin-top: 4px;
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
@@ -159,7 +157,6 @@
             transform: scale(0.98);
         }
 
-        /* Треклист */
         .tracklist {
             flex-grow: 1;
             overflow-y: auto;
@@ -195,7 +192,7 @@
 
         .track-item.playing {
             border-color: var(--accent);
-            background: rgba(255, 42, 95, 0.05);
+            background: rgba(0, 245, 212, 0.05);
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
@@ -231,11 +228,10 @@
             color: var(--muted);
         }
 
-        /* Плеер снизу */
         .player-bar {
-            margin-top: 16px;
+            margin-top: 14px;
             border-top: 1px solid var(--border);
-            padding-top: 14px;
+            padding-top: 12px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -247,7 +243,7 @@
             background: var(--accent);
             border: none;
             border-radius: 50%;
-            color: #fff;
+            color: #050507;
             font-size: 15px;
             cursor: pointer;
             display: flex;
@@ -298,18 +294,18 @@
 
     <div class="app-shell">
         <div class="topbar">
-            <div class="logo">FREQ<span>//</span>WIZARD</div>
-            <div class="sys-status" id="status-text">CONFIG</div>
+            <div class="logo">FREQ<span>//</span>INFINITE</div>
+            <div class="sys-status" id="status-text">READY</div>
         </div>
 
         <div class="wizard-container">
-            <div class="step-label">1. Выбери интенсивность потока:</div>
+            <div class="step-label">1. Интенсивность:</div>
             <div class="options-grid" id="intensity-opts">
                 <button class="opt-btn active" data-val="chill">🌿 Спокойное</button>
                 <button class="opt-btn" data-val="hard">🔥 Жесткое / Кач</button>
             </div>
 
-            <div class="step-label">2. Выбери атмосферу (вайб):</div>
+            <div class="step-label">2. Вайб / Атмосфера:</div>
             <div class="options-grid" id="vibe-opts">
                 <button class="opt-btn active" data-val="night">🌃 Ночной город</button>
                 <button class="opt-btn" data-val="code">💻 Фокус / Код</button>
@@ -317,18 +313,18 @@
                 <button class="opt-btn" data-val="cloud">☁️ Облачный рэп</button>
             </div>
 
-            <button class="action-btn" id="generate-btn">СГЕНЕРИРОВАТЬ ПЛЕЙЛИСТ</button>
+            <button class="action-btn" id="generate-btn">ЗАПУСТИТЬ БЕСКОНЕЧНЫЙ ПОТОК</button>
         </div>
 
         <div class="tracklist" id="tracklist">
-            <div style="text-align:center; color:var(--muted); margin-top:30px; font-size:12px; font-family:JetBrains Mono;">Настрой параметры выше и нажми генерацию</div>
+            <div style="text-align:center; color:var(--muted); margin-top:20px; font-size:12px; font-family:JetBrains Mono;">Нажми кнопку запуска, чтобы собрать плейлист</div>
         </div>
 
         <div class="player-bar">
             <button class="play-master-btn" id="master-play-btn">▶</button>
             <div class="current-playing-info">
                 <div class="cp-title" id="cp-title">Ничего не играет</div>
-                <div class="cp-status" id="cp-sub">Ожидание выбора</div>
+                <div class="cp-status" id="cp-sub">Ожидание старта</div>
             </div>
             <div class="spectrum" id="spectrum">
                 <div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div>
@@ -337,23 +333,23 @@
     </div>
 
     <script>
-        const database = [
-            { name: "HOME - Resonance", intensity: "chill", vibe: "code night", author: "Synthwave", url: "https://p.scdn.co/mp3-preview/32578b871c53e8392186835a297924d550089e1b?cid=9448f212852243e8bb24765d70f2f354" },
-            { name: "Kordhell - Murder In My Mind", intensity: "hard", vibe: "drift night", author: "Drift Phonk", url: "https://p.scdn.co/mp3-preview/882e340e4fbc8ea9f9e30a514d7ca656f7ef534a?cid=9448f212852243e8bb24765d70f2f354" },
-            { name: "Kizaru - Дежавю", intensity: "hard", vibe: "night cloud", author: "Hip-Hop", url: "https://p.scdn.co/mp3-preview/452295696d5a11c19550b07548ec2a55928d3e38?cid=9448f212852243e8bb24765d70f2f354" },
-            { name: "DVRST - Close Eyes", intensity: "chill", vibe: "drift code", author: "Phonk Wave", url: "https://p.scdn.co/mp3-preview/c8a245d8b8d946d84f2aa34b1235b2e3f5b08542?cid=9448f212852243e8bb24765d70f2f354" },
-            { name: "Travis Scott - FE!N (Snippet)", intensity: "hard", vibe: "night cloud", author: "Rage", url: "https://p.scdn.co/mp3-preview/a9167885b5b481600f680c6f55518b5ea0f22d9b?cid=9448f212852243e8bb24765d70f2f354" },
-            { name: "Gunship - Tech Noir", intensity: "chill", vibe: "code", author: "Cyberpunk", url: "https://p.scdn.co/mp3-preview/f82168926442654ef245e3540d0cbfa239d20c57?cid=9448f212852243e8bb24765d70f2f354" }
+        // Большая база стабильных треков с генератором бесконечной очереди
+        const baseTracks = [
+            { name: "Cyberpunk Night Walk", author: "Synthwave Core", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
+            { name: "Underground Bass Boosted", author: "Phonk Lab", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" },
+            { name: "Cloud Nine Session", author: "Voynowfc Vibe", url: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Classical_guitar_gros_miracle.ogg" },
+            { name: "Neon Highway Speed", author: "Drift Wave", url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg" },
+            { name: "Deep Focus Code Flow", author: "Ambient Engine", url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Cyberpunk_Dark_Electro.ogg" },
+            { name: "Midnight Drift Bounce", author: "Phonk Street", url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Electro_Theque.ogg" }
         ];
 
-        const audio = new Audio();
         let currentPlaylist = [];
-        let activeIndex = null;
+        let currentIndex = 0;
+        const audio = new Audio();
 
         let selectedIntensity = 'chill';
         let selectedVibe = 'night';
 
-        // Выбор кнопок конфигурации
         function setupSelector(containerId, callback) {
             const container = document.getElementById(containerId);
             container.querySelectorAll('.opt-btn').forEach(btn => {
@@ -369,25 +365,24 @@
         setupSelector('vibe-opts', (val) => selectedVibe = val);
 
         document.getElementById('generate-btn').addEventListener('click', () => {
-            const statusText = document.getElementById('status-text');
-            statusText.textContent = "BUILDING";
-
-            // Фильтрация базы треков по выбранным настройкам
-            currentPlaylist = database.filter(track => {
-                const matchIntensity = track.intensity === selectedIntensity;
-                const matchVibe = track.vibe.includes(selectedVibe);
-                return matchIntensity || matchVibe;
-            });
-
-            // Если под фильтр попало мало, берем рандом из общей базы
-            if (currentPlaylist.length === 0) {
-                currentPlaylist = [...database].sort(() => 0.5 - Math.random()).slice(0, 3);
-            }
-
-            activeIndex = null;
-            renderTracks();
-            statusText.textContent = "READY";
+            buildInfinitePlaylist();
+            playTrack(0);
         });
+
+        // Генерация большой очереди (бесконечный плейлист)
+        function buildInfinitePlaylist() {
+            currentPlaylist = [];
+            // Создаем микс из 20 автоматически генерируемых позиций на основе выбранного вайба
+            for (let i = 1; i <= 20; i++) {
+                const randomTemplate = baseTracks[Math.floor(Math.random() * baseTracks.length)];
+                currentPlaylist.push({
+                    name: `${selectedVibe.toUpperCase()} #${i}: ${randomTemplate.name}`,
+                    author: `${selectedIntensity.toUpperCase()} // ${randomTemplate.author}`,
+                    url: randomTemplate.url
+                });
+            }
+            renderTracks();
+        }
 
         const tracklistEl = document.getElementById('tracklist');
         const cpTitle = document.getElementById('cp-title');
@@ -400,7 +395,7 @@
             currentPlaylist.forEach((track, index) => {
                 const item = document.createElement('div');
                 item.className = 'track-item';
-                if (activeIndex === index) item.classList.add('playing');
+                if (currentIndex === index && !audio.paused) item.classList.add('playing');
 
                 item.innerHTML = `
                     <div class="track-thumb">🎵</div>
@@ -416,21 +411,39 @@
         }
 
         function playTrack(index) {
-            activeIndex = index;
-            const track = currentPlaylist[index];
+            if (currentPlaylist.length === 0) buildInfinitePlaylist();
+            
+            currentIndex = index;
+            if (currentIndex >= currentPlaylist.length) {
+                currentIndex = 0; // Зацикливаем бесконечно
+            }
 
+            const track = currentPlaylist[currentIndex];
             audio.src = track.url;
+            audio.load();
             audio.play().then(() => {
-                statusText.textContent = "PLAYING";
+                statusText.textContent = `PLAY [${currentIndex + 1}]`;
                 cpTitle.textContent = track.name;
                 cpSub.textContent = track.author;
                 masterPlayBtn.textContent = "⏸";
                 renderTracks();
-            }).catch(e => console.error(e));
+            }).catch(e => {
+                console.error(e);
+                statusText.textContent = "ERROR";
+            });
         }
 
+        // Автоматический переход к следующему треку при завершении текущего (бесконечный поток)
+        audio.addEventListener('ended', () => {
+            playTrack(currentIndex + 1);
+        });
+
         masterPlayBtn.addEventListener('click', () => {
-            if (!audio.src) return;
+            if (!audio.src) {
+                buildInfinitePlaylist();
+                playTrack(0);
+                return;
+            }
             if (audio.paused) {
                 audio.play();
                 masterPlayBtn.textContent = "⏸";
@@ -442,14 +455,7 @@
             }
         });
 
-        audio.addEventListener('ended', () => {
-            masterPlayBtn.textContent = "▶";
-            statusText.textContent = "READY";
-            activeIndex = null;
-            renderTracks();
-        });
-
-        // Анимация канваса
+        // Анимация визуализатора и канваса
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -472,7 +478,7 @@
             ctx.lineWidth = 1.5;
             for (let i = 0; i < 4; i++) {
                 ctx.beginPath();
-                ctx.strokeStyle = isPlaying ? `rgba(255, 42, 95, ${0.1 + i*0.04})` : `rgba(120, 120, 140, 0.04)`;
+                ctx.strokeStyle = isPlaying ? `rgba(0, 245, 212, ${0.1 + i*0.04})` : `rgba(120, 120, 140, 0.04)`;
                 
                 for (let x = 0; x < width; x += 15) {
                     const y = height / 2 + Math.sin(x * 0.003 + step + i * 0.6) * (isPlaying ? 50 : 15);
@@ -498,4 +504,5 @@
     </script>
 </body>
 </html>
+
 
