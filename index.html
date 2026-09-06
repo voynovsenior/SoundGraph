@@ -1,10 +1,9 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FREQUENCY // Audio Engine v1.0</title>
+    <title>FREQ // Vibe Engine v2.0</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;900&display=swap');
 
@@ -16,7 +15,7 @@
             --text: #f3f3f6;
             --muted: #78788c;
             --accent: #ff2a5f;
-            --accent-glow: rgba(255, 42, 95, 0.25);
+            --accent-glow: rgba(255, 42, 95, 0.2);
         }
 
         * {
@@ -54,22 +53,21 @@
             max-width: 440px;
             height: 100%;
             max-height: 850px;
-            background: rgba(16, 16, 22, 0.75);
+            background: rgba(16, 16, 22, 0.85);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 20px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
         }
 
-        /* Шапка */
         .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             border-bottom: 1px solid var(--border);
             padding-bottom: 12px;
         }
@@ -77,12 +75,8 @@
         .logo {
             font-family: 'JetBrains Mono', monospace;
             font-weight: 800;
-            font-size: 16px;
-            letter-spacing: -0.5px;
+            font-size: 15px;
             color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .logo span {
@@ -99,67 +93,73 @@
             border-radius: 4px;
         }
 
-        /* Выбор жанра / вайба */
-        .categories {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+        /* Контейнер шагов настройки */
+        .wizard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
-        .cat-btn {
+        .step-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .opt-btn {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 10px;
+            padding: 10px 12px;
             color: var(--muted);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-
-        .cat-btn:hover {
-            border-color: var(--text);
-            color: var(--text);
-        }
-
-        .cat-btn.active {
-            background: var(--accent-glow);
-            border-color: var(--accent);
-            color: var(--text);
-        }
-
-        /* Загрузка своих */
-        .upload-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .btn-custom {
-            flex: 1;
-            background: var(--surface);
-            border: 1px dashed var(--border);
-            border-radius: 8px;
-            padding: 10px;
-            color: var(--text);
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
-            text-align: center;
+            text-align: left;
         }
 
-        .btn-custom:hover {
+        .opt-btn:hover {
+            border-color: var(--text);
+            color: var(--text);
+        }
+
+        .opt-btn.active {
+            background: var(--accent-glow);
             border-color: var(--accent);
-            background: var(--surface-hover);
+            color: var(--text);
         }
 
-        /* Список треков */
+        .action-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            margin-top: 4px;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Треклист */
         .tracklist {
             flex-grow: 1;
             overflow-y: auto;
@@ -200,14 +200,14 @@
         }
 
         .track-thumb {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             background: var(--border);
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             flex-shrink: 0;
         }
 
@@ -231,7 +231,7 @@
             color: var(--muted);
         }
 
-        /* Контроллер плеера снизу */
+        /* Плеер снизу */
         .player-bar {
             margin-top: 16px;
             border-top: 1px solid var(--border);
@@ -242,24 +242,19 @@
         }
 
         .play-master-btn {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             background: var(--accent);
             border: none;
             border-radius: 50%;
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 0 15px var(--accent-glow);
-            transition: transform 0.1s;
-        }
-
-        .play-master-btn:active {
-            transform: scale(0.95);
+            font-weight: bold;
         }
 
         .current-playing-info {
@@ -282,7 +277,6 @@
             margin-top: 2px;
         }
 
-        /* Спектрум-визуализатор */
         .spectrum {
             display: flex;
             gap: 2px;
@@ -295,7 +289,6 @@
             background: var(--accent);
             height: 4px;
             border-radius: 1px;
-            transition: height 0.1s ease;
         }
     </style>
 </head>
@@ -305,30 +298,37 @@
 
     <div class="app-shell">
         <div class="topbar">
-            <div class="logo">FREQ<span>//</span>ENGINE</div>
-            <div class="sys-status" id="status-text">IDLE</div>
+            <div class="logo">FREQ<span>//</span>WIZARD</div>
+            <div class="sys-status" id="status-text">CONFIG</div>
         </div>
 
-        <div class="categories">
-            <button class="cat-btn active" data-cat="cloud">CLOUD</button>
-            <button class="cat-btn" data-cat="phonk">PHONK</button>
-            <button class="cat-btn" data-cat="ambient">AMBIENT</button>
-        </div>
+        <div class="wizard-container">
+            <div class="step-label">1. Выбери интенсивность потока:</div>
+            <div class="options-grid" id="intensity-opts">
+                <button class="opt-btn active" data-val="chill">🌿 Спокойное</button>
+                <button class="opt-btn" data-val="hard">🔥 Жесткое / Кач</button>
+            </div>
 
-        <div class="upload-row">
-            <input type="file" id="mp3-input" accept="audio/mp3, audio/wav" multiple hidden>
-            <button class="btn-custom" id="upload-trigger">+ ЗАГРУЗИТЬ СВОИ MP3</button>
+            <div class="step-label">2. Выбери атмосферу (вайб):</div>
+            <div class="options-grid" id="vibe-opts">
+                <button class="opt-btn active" data-val="night">🌃 Ночной город</button>
+                <button class="opt-btn" data-val="code">💻 Фокус / Код</button>
+                <button class="opt-btn" data-val="drift">🏎️ Дрифт / Трасса</button>
+                <button class="opt-btn" data-val="cloud">☁️ Облачный рэп</button>
+            </div>
+
+            <button class="action-btn" id="generate-btn">СГЕНЕРИРОВАТЬ ПЛЕЙЛИСТ</button>
         </div>
 
         <div class="tracklist" id="tracklist">
-            <!-- Треки рендерятся через JS -->
+            <div style="text-align:center; color:var(--muted); margin-top:30px; font-size:12px; font-family:JetBrains Mono;">Настрой параметры выше и нажми генерацию</div>
         </div>
 
         <div class="player-bar">
             <button class="play-master-btn" id="master-play-btn">▶</button>
             <div class="current-playing-info">
                 <div class="cp-title" id="cp-title">Ничего не играет</div>
-                <div class="cp-status" id="cp-sub">Выберите трек из списка</div>
+                <div class="cp-status" id="cp-sub">Ожидание выбора</div>
             </div>
             <div class="spectrum" id="spectrum">
                 <div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div>
@@ -337,70 +337,87 @@
     </div>
 
     <script>
-        // Реальные рабочие аудио-превью (бесплатные потоковые семплы для тестирования)
-        const database = {
-            cloud: [
-                { name: "Yung Lean - Ginseng Strip (Snippet)", author: "Cloud Core", url: "https://p.scdn.co/mp3-preview/452295696d5a11c19550b07548ec2a55928d3e38?cid=9448f212852243e8bb24765d70f2f354" },
-                { name: "Space Ghost Purrp - Bringin' The Phonk", author: "Underground", url: "https://p.scdn.co/mp3-preview/a9167885b5b481600f680c6f55518b5ea0f22d9b?cid=9448f212852243e8bb24765d70f2f354" }
-            ],
-            phonk: [
-                { name: "Kordhell - Murder In My Mind (Drift)", author: "Drift Phonk", url: "https://p.scdn.co/mp3-preview/882e340e4fbc8ea9f9e30a514d7ca656f7ef534a?cid=9448f212852243e8bb24765d70f2f354" },
-                { name: "DVRST - Close Eyes", author: "Phonk Wave", url: "https://p.scdn.co/mp3-preview/c8a245d8b8d946d84f2aa34b1235b2e3f5b08542?cid=9448f212852243e8bb24765d70f2f354" }
-            ],
-            ambient: [
-                { name: "HOME - Resonance (Synthwave Core)", author: "Retrowave", url: "https://p.scdn.co/mp3-preview/32578b871c53e8392186835a297924d550089e1b?cid=9448f212852243e8bb24765d70f2f354" },
-                { name: "Gunship - Tech Noir", author: "Cyberpunk", url: "https://p.scdn.co/mp3-preview/f82168926442654ef245e3540d0cbfa239d20c57?cid=9448f212852243e8bb24765d70f2f354" }
-            ],
-            local: []
-        };
+        const database = [
+            { name: "HOME - Resonance", intensity: "chill", vibe: "code night", author: "Synthwave", url: "https://p.scdn.co/mp3-preview/32578b871c53e8392186835a297924d550089e1b?cid=9448f212852243e8bb24765d70f2f354" },
+            { name: "Kordhell - Murder In My Mind", intensity: "hard", vibe: "drift night", author: "Drift Phonk", url: "https://p.scdn.co/mp3-preview/882e340e4fbc8ea9f9e30a514d7ca656f7ef534a?cid=9448f212852243e8bb24765d70f2f354" },
+            { name: "Kizaru - Дежавю", intensity: "hard", vibe: "night cloud", author: "Hip-Hop", url: "https://p.scdn.co/mp3-preview/452295696d5a11c19550b07548ec2a55928d3e38?cid=9448f212852243e8bb24765d70f2f354" },
+            { name: "DVRST - Close Eyes", intensity: "chill", vibe: "drift code", author: "Phonk Wave", url: "https://p.scdn.co/mp3-preview/c8a245d8b8d946d84f2aa34b1235b2e3f5b08542?cid=9448f212852243e8bb24765d70f2f354" },
+            { name: "Travis Scott - FE!N (Snippet)", intensity: "hard", vibe: "night cloud", author: "Rage", url: "https://p.scdn.co/mp3-preview/a9167885b5b481600f680c6f55518b5ea0f22d9b?cid=9448f212852243e8bb24765d70f2f354" },
+            { name: "Gunship - Tech Noir", intensity: "chill", vibe: "code", author: "Cyberpunk", url: "https://p.scdn.co/mp3-preview/f82168926442654ef245e3540d0cbfa239d20c57?cid=9448f212852243e8bb24765d70f2f354" }
+        ];
 
         const audio = new Audio();
-        let currentCategory = 'cloud';
-        let activeTrackIndex = null;
+        let currentPlaylist = [];
+        let activeIndex = null;
+
+        let selectedIntensity = 'chill';
+        let selectedVibe = 'night';
+
+        // Выбор кнопок конфигурации
+        function setupSelector(containerId, callback) {
+            const container = document.getElementById(containerId);
+            container.querySelectorAll('.opt-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    callback(e.target.getAttribute('data-val'));
+                });
+            });
+        }
+
+        setupSelector('intensity-opts', (val) => selectedIntensity = val);
+        setupSelector('vibe-opts', (val) => selectedVibe = val);
+
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            const statusText = document.getElementById('status-text');
+            statusText.textContent = "BUILDING";
+
+            // Фильтрация базы треков по выбранным настройкам
+            currentPlaylist = database.filter(track => {
+                const matchIntensity = track.intensity === selectedIntensity;
+                const matchVibe = track.vibe.includes(selectedVibe);
+                return matchIntensity || matchVibe;
+            });
+
+            // Если под фильтр попало мало, берем рандом из общей базы
+            if (currentPlaylist.length === 0) {
+                currentPlaylist = [...database].sort(() => 0.5 - Math.random()).slice(0, 3);
+            }
+
+            activeIndex = null;
+            renderTracks();
+            statusText.textContent = "READY";
+        });
 
         const tracklistEl = document.getElementById('tracklist');
-        const statusText = document.getElementById('status-text');
         const cpTitle = document.getElementById('cp-title');
         const cpSub = document.getElementById('cp-sub');
         const masterPlayBtn = document.getElementById('master-play-btn');
+        const statusText = document.getElementById('status-text');
 
-        // Рендер треков
-        function renderTracks(category) {
+        function renderTracks() {
             tracklistEl.innerHTML = '';
-            const tracks = database[category];
-
-            if(tracks.length === 0) {
-                tracklistEl.innerHTML = '<div style="text-align:center; color:var(--muted); margin-top:40px; font-size:12px; font-family:JetBrains Mono;">НЕТ ФАЙЛОВ. ЗАГРУЗИТЕ СВОИ.</div>';
-                return;
-            }
-
-            tracks.forEach((track, index) => {
+            currentPlaylist.forEach((track, index) => {
                 const item = document.createElement('div');
                 item.className = 'track-item';
-                if (activeTrackIndex === index && currentCategory === category) {
-                    item.classList.add('playing');
-                }
+                if (activeIndex === index) item.classList.add('playing');
 
                 item.innerHTML = `
-                    <div class="track-thumb">${category === 'local' ? '💾' : '🎵'}</div>
+                    <div class="track-thumb">🎵</div>
                     <div class="track-info">
                         <div class="track-name">${track.name}</div>
                         <div class="track-meta">${track.author}</div>
                     </div>
                 `;
 
-                item.addEventListener('click', () => {
-                    playTrack(category, index);
-                });
-
+                item.addEventListener('click', () => playTrack(index));
                 tracklistEl.appendChild(item);
             });
         }
 
-        function playTrack(cat, index) {
-            currentCategory = cat;
-            activeTrackIndex = index;
-            const track = database[cat][index];
+        function playTrack(index) {
+            activeIndex = index;
+            const track = currentPlaylist[index];
 
             audio.src = track.url;
             audio.play().then(() => {
@@ -408,54 +425,13 @@
                 cpTitle.textContent = track.name;
                 cpSub.textContent = track.author;
                 masterPlayBtn.textContent = "⏸";
-                renderTracks(cat);
-            }).catch(err => {
-                console.error(err);
-                alert("Ошибка воспроизведения потока. Попробуйте свои MP3 файлы.");
-            });
+                renderTracks();
+            }).catch(e => console.error(e));
         }
 
-        // Переключение категорий
-        document.querySelectorAll('.cat-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentCategory = e.target.getAttribute('data-cat');
-                activeTrackIndex = null;
-                renderTracks(currentCategory);
-            });
-        });
-
-        // Загрузка локальных файлов
-        const uploadTrigger = document.getElementById('upload-trigger');
-        const mp3Input = document.getElementById('mp3-input');
-
-        uploadTrigger.addEventListener('click', () => mp3Input.click());
-
-        mp3Input.addEventListener('change', (e) => {
-            const files = e.target.files;
-            if(!files.length) return;
-
-            database.local = [];
-            Array.from(files).forEach(file => {
-                database.local.push({
-                    name: file.name.replace(/\.[^/.]+$/, ""),
-                    author: "Local Storage",
-                    url: URL.createObjectURL(file)
-                });
-            });
-
-            // Создаем или активируем кнопку локал
-            currentCategory = 'local';
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            renderTracks('local');
-            uploadTrigger.textContent = `ЗАГРУЖЕНО: ${files.length}`;
-        });
-
-        // Кнопка Play/Pause снизу
         masterPlayBtn.addEventListener('click', () => {
-            if(!audio.src) return;
-            if(audio.paused) {
+            if (!audio.src) return;
+            if (audio.paused) {
                 audio.play();
                 masterPlayBtn.textContent = "⏸";
                 statusText.textContent = "PLAYING";
@@ -468,12 +444,12 @@
 
         audio.addEventListener('ended', () => {
             masterPlayBtn.textContent = "▶";
-            statusText.textContent = "IDLE";
-            activeTrackIndex = null;
-            renderTracks(currentCategory);
+            statusText.textContent = "READY";
+            activeIndex = null;
+            renderTracks();
         });
 
-        // --- ДИНАМИЧЕСКИЙ КАНВАС (ФОНОВЫЕ ВОЛНЫ) ---
+        // Анимация канваса
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -486,31 +462,28 @@
         resize();
 
         let step = 0;
-        function drawCanvas() {
+        function animate() {
             ctx.fillStyle = '#050507';
             ctx.fillRect(0, 0, width, height);
 
-            ctx.lineWidth = 1.5;
             const isPlaying = !audio.paused;
-            step += isPlaying ? 0.03 : 0.005;
+            step += isPlaying ? 0.04 : 0.008;
 
-            // Рисуем сетку-волну
-            for (let i = 0; i < 5; i++) {
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 4; i++) {
                 ctx.beginPath();
-                ctx.strokeStyle = isPlaying ? `rgba(255, 42, 95, ${0.08 + i*0.03})` : `rgba(120, 120, 140, 0.04)`;
+                ctx.strokeStyle = isPlaying ? `rgba(255, 42, 95, ${0.1 + i*0.04})` : `rgba(120, 120, 140, 0.04)`;
                 
                 for (let x = 0; x < width; x += 15) {
-                    const y = height / 2 + Math.sin(x * 0.003 + step + i * 0.5) * (isPlaying ? 60 : 20) 
-                              + Math.cos(x * 0.008 - step) * (isPlaying ? 30 : 10);
+                    const y = height / 2 + Math.sin(x * 0.003 + step + i * 0.6) * (isPlaying ? 50 : 15);
                     if (x === 0) ctx.moveTo(x, y);
                     else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
             }
 
-            // Анимация спектрума внизу
             if (isPlaying) {
-                document.querySelectorAll('.s-bar').forEach((bar, idx) => {
+                document.querySelectorAll('.s-bar').forEach(bar => {
                     bar.style.height = `${Math.random() * 14 + 4}px`;
                 });
             } else {
@@ -519,12 +492,10 @@
                 });
             }
 
-            requestAnimationFrame(drawCanvas);
+            requestAnimationFrame(animate);
         }
-        drawCanvas();
-
-        // Первичный рендер
-        renderTracks('cloud');
+        animate();
     </script>
 </body>
 </html>
+
